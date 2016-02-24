@@ -1,7 +1,7 @@
 #include "AppClass.h"
 void AppClass::InitWindow(String a_sWindowName)
 {
-	super::InitWindow("Bobadilla, Alberto - 3D Transformations");
+	super::InitWindow("jrm2516@rit.edu - 3D Transformations");
 	m_v4ClearColor = vector4(0.0f, 0.0f, 0.0f, 0.0f);
 }
 
@@ -19,6 +19,12 @@ void AppClass::InitVariables(void)
 
 	//Initializing the primitives
 	m_pSphere->GenerateSphere(0.5f, 5, REWHITE);
+	m_pCone->GenerateCone(0.5f, 0.5f, 10, REGREEN);
+	m_pCylinder->GenerateCylinder(0.5f, 0.5f, 10, REBLUE);
+	m_pTube->GenerateTube(0.5f, 0.25f, 0.5f, 10, REBROWN);
+	m_pTorus->GenerateTorus(0.5f, 0.25f, 10, 10, REYELLOW);
+	m_pCube->GenerateCube(0.5f,RERED);
+	
 }
 
 void AppClass::Update(void)
@@ -28,6 +34,31 @@ void AppClass::Update(void)
 
 	//This matrices will scale them to the right size
 	m_m4Sphere = glm::scale(m_m4Sphere, vector3(2.0f, 2.0f, 2.0f));
+
+	//time for cone
+	m_m4Cone = glm::translate(IDENTITY_M4, vector3(0.0f, 2.0f, 0.0f));
+
+	m_m4Cone = glm::scale(m_m4Cone, vector3(2.0f, 2.0f, 2.0f));
+
+	//now cylinder
+	m_m4Cylinder = glm::translate(IDENTITY_M4, vector3(-2.0f, 0.0f, 0.0f));
+
+	m_m4Cylinder = glm::scale(m_m4Cylinder, vector3(2.0f, 2.0f, 2.0f));
+
+	//tubin'
+	m_m4Tube = glm::translate(IDENTITY_M4, vector3(0.0f, -2.0f, 0.0f));
+
+	m_m4Tube = glm::scale(m_m4Tube, vector3(2.0f, 2.0f, 2.0f));
+
+	//halo/donut/torus
+	m_m4Torus = glm::translate(IDENTITY_M4, vector3(0.0f, 0.0f, 0.0f));
+
+	m_m4Torus = glm::scale(m_m4Torus, vector3(2.0f, 2.0f, 2.0f));
+
+	//gamecube
+	m_m4Cube = glm::translate(IDENTITY_M4, vector3(2.0f, 0.0f, 0.0f));
+
+	m_m4Cube = glm::scale(m_m4Cube, vector3(2.0f, 2.0f, 2.0f));
 
 	//Indicate the FPS
 	int nFPS = m_pSystem->GetFPS();
@@ -49,6 +80,11 @@ void AppClass::Display(void)
 
 	//Renders the meshes using the specified position given by the matrix and in the specified color
 	m_pSphere->Render(m4Projection, m4View, m_m4Sphere);
+	m_pCone->Render(m4Projection, m4View, m_m4Cone);
+	m_pCylinder->Render(m4Projection, m4View, m_m4Cylinder);
+	m_pTube->Render(m4Projection, m4View, m_m4Tube);
+	m_pTorus->Render(m4Projection, m4View, m_m4Torus);
+	m_pCube->Render(m4Projection, m4View, m_m4Cube);
 
 	//To render the render list (right now it only contains the grid)
 	m_pMeshMngr->Render();
