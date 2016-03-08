@@ -110,16 +110,46 @@ void MyPrimitive::GenerateCone(float a_fRadius, float a_fHeight, int a_nSubdivis
 	Init();
 
 	//Your code starts here
-	float fValue = 0.5f;
+
+	float centralAngle = 360 / a_nSubdivisions; //angle from point to point is == 360 deg / number of sides
+
+	std::vector<vector3> points;
+	float halfHeight = a_fHeight / 2;
+	vector3 top = vector3(0, halfHeight, 0);
+
+	for (int i = 0; i < a_nSubdivisions; i++)
+	{
+		//vector3 temp = vector3(0, -halfHeight, 0);
+		//temp = temp + vector3(a_fRadius, 0, 0);
+		//temp = temp * matrix3[glm::cos(centralAngle*i), 0, -glm::sin(centralAngle*i), 0, 1, 0, glm::sin(centralAngle*i), 0, cos(centralAngle*i)];
+
+		vector3 temp = vector3(a_fRadius, -halfHeight, 0);
+		temp = glm::mat3(glm::cos(centralAngle*i), 0, -glm::sin(centralAngle*i), 0, 1, 0, glm::sin(centralAngle*i), 0, cos(centralAngle*i)) * temp;
+		points.push_back(temp);
+		std::cout << "| point: " << i << " is: " << temp.x << " , " << temp.y << " , " << temp.z;
+
+	}
+
+	for (int i = 0; i < a_nSubdivisions - 3; i++)
+	{
+		AddQuad(points[0 + i], points[1 + i], points[3+i], points[2 + i]);
+		AddQuad(points[0 + i], points[1 + i], top, points[2 + i]);
+	}
+
+		//AddQuad(points[0], points[1], top, points[0]);
+
+	
 	//3--2
 	//|  |
 	//0--1
-	vector3 point0(-fValue, -fValue, fValue); //0
-	vector3 point1(fValue, -fValue, fValue); //1
-	vector3 point2(fValue, fValue, fValue); //2
-	vector3 point3(-fValue, fValue, fValue); //3
+	//vector3 point0(-fValue, -fValue, fValue); //0
+	//vector3 point1(fValue, -fValue, fValue); //1
+	//vector3 point2(fValue, fValue, fValue); //2
+	//vector3 point3(-fValue, fValue, fValue); //3
 
-	AddQuad(point0, point1, point3, point2);
+
+
+	//AddQuad(point0, point1, point3, point2);
 
 	//Your code ends here
 	CompileObject(a_v3Color);
@@ -134,17 +164,47 @@ void MyPrimitive::GenerateCylinder(float a_fRadius, float a_fHeight, int a_nSubd
 	Release();
 	Init();
 
+	float centralAngle = 360 / a_nSubdivisions;
+	std::vector<vector3> topPoints;
+	std::vector<vector3> bottomPoints;
+	float halfHeight = a_fHeight / 2;
+
+	for (int i = 0; i < a_nSubdivisions; i++)
+	{
+		//vector3 temp = vector3(0, -halfHeight, 0);
+		//temp = temp + vector3(a_fRadius, 0, 0);
+		//temp = temp * matrix3[glm::cos(centralAngle*i), 0, -glm::sin(centralAngle*i), 0, 1, 0, glm::sin(centralAngle*i), 0, cos(centralAngle*i)];
+
+		vector3 tempBottom = vector3(a_fRadius, -halfHeight, 0);
+		vector3 tempTop = vector3(a_fRadius, halfHeight, 0);
+		tempBottom = glm::mat3(glm::cos(centralAngle*i), 0, -glm::sin(centralAngle*i), 0, 1, 0, glm::sin(centralAngle*i), 0, cos(centralAngle*i)) * tempBottom;
+		tempTop = glm::mat3(glm::cos(centralAngle*i), 0, -glm::sin(centralAngle*i), 0, 1, 0, glm::sin(centralAngle*i), 0, cos(centralAngle*i)) * tempTop;
+		bottomPoints.push_back(tempBottom);
+		topPoints.push_back(tempTop);
+		//std::cout << "| point: " << i << " is: " << temp.x << " , " << temp.y << " , " << temp.z;
+
+	}
+
+	for (int i = 0; i < a_nSubdivisions - 1; i++)
+	{
+		AddQuad(bottomPoints[0 + i], bottomPoints[1 + i], topPoints[0 + i], topPoints[1 + i]);
+		AddQuad(bottomPoints[1 + i], bottomPoints[0 + i], topPoints[1 + i], topPoints[0 + i]);
+		AddQuad(topPoints[i], topPoints[1 + i], topPoints[topPoints.size() -1 - i], topPoints[topPoints.size() - 2 - i]);
+		AddQuad(bottomPoints[i + 1], bottomPoints[i], bottomPoints[bottomPoints.size() - 2 - i], bottomPoints[bottomPoints.size() - 1 - i]);
+		
+	}
+
 	//Your code starts here
 	float fValue = 0.5f;
 	//3--2
 	//|  |
 	//0--1
-	vector3 point0(-fValue, -fValue, fValue); //0
-	vector3 point1(fValue, -fValue, fValue); //1
-	vector3 point2(fValue, fValue, fValue); //2
-	vector3 point3(-fValue, fValue, fValue); //3
+	//vector3 point0(-fValue, -fValue, fValue); //0
+	//vector3 point1(fValue, -fValue, fValue); //1
+	//vector3 point2(fValue, fValue, fValue); //2
+	//vector3 point3(-fValue, fValue, fValue); //3
 
-	AddQuad(point0, point1, point3, point2);
+	//AddQuad(point0, point1, point3, point2);
 
 	//Your code ends here
 	CompileObject(a_v3Color);
@@ -159,17 +219,59 @@ void MyPrimitive::GenerateTube(float a_fOuterRadius, float a_fInnerRadius, float
 	Release();
 	Init();
 
+	float centralAngle = 360 / a_nSubdivisions;
+	std::vector<vector3> topPointsOut;
+	std::vector<vector3> bottomPointsOut;
+	std::vector<vector3> topPointsIn;
+	std::vector<vector3> bottomPointsIn;
+	float halfHeight = a_fHeight / 2;
+
+	for (int i = 0; i < a_nSubdivisions; i++)
+	{
+		//vector3 temp = vector3(0, -halfHeight, 0);
+		//temp = temp + vector3(a_fRadius, 0, 0);
+		//temp = temp * matrix3[glm::cos(centralAngle*i), 0, -glm::sin(centralAngle*i), 0, 1, 0, glm::sin(centralAngle*i), 0, cos(centralAngle*i)];
+
+		vector3 tempBottomOut = vector3(a_fOuterRadius, -halfHeight, 0);
+		vector3 tempTopOut = vector3(a_fOuterRadius, halfHeight, 0);
+		tempBottomOut = glm::mat3(glm::cos(centralAngle*i), 0, -glm::sin(centralAngle*i), 0, 1, 0, glm::sin(centralAngle*i), 0, cos(centralAngle*i)) * tempBottomOut;
+		tempTopOut = glm::mat3(glm::cos(centralAngle*i), 0, -glm::sin(centralAngle*i), 0, 1, 0, glm::sin(centralAngle*i), 0, cos(centralAngle*i)) * tempTopOut;
+		bottomPointsOut.push_back(tempBottomOut);
+		topPointsOut.push_back(tempTopOut);
+
+		vector3 tempBottomIn = vector3(a_fInnerRadius, -halfHeight, 0);
+		vector3 tempTopIn = vector3(a_fInnerRadius, halfHeight, 0);
+		tempBottomIn = glm::mat3(glm::cos(centralAngle*i), 0, -glm::sin(centralAngle*i), 0, 1, 0, glm::sin(centralAngle*i), 0, cos(centralAngle*i)) * tempBottomIn;
+		tempTopIn = glm::mat3(glm::cos(centralAngle*i), 0, -glm::sin(centralAngle*i), 0, 1, 0, glm::sin(centralAngle*i), 0, cos(centralAngle*i)) * tempTopIn;
+		bottomPointsIn.push_back(tempBottomIn);
+		topPointsIn.push_back(tempTopIn);
+		//std::cout << "| point: " << i << " is: " << temp.x << " , " << temp.y << " , " << temp.z;
+
+	}
+
 	//Your code starts here
 	float fValue = 0.5f;
 	//3--2
 	//|  |
 	//0--1
-	vector3 point0(-fValue, -fValue, fValue); //0
-	vector3 point1(fValue, -fValue, fValue); //1
-	vector3 point2(fValue, fValue, fValue); //2
-	vector3 point3(-fValue, fValue, fValue); //3
+	//vector3 point0(-fValue, -fValue, fValue); //0
+	//vector3 point1(fValue, -fValue, fValue); //1
+	//vector3 point2(fValue, fValue, fValue); //2
+	//vector3 point3(-fValue, fValue, fValue); //3
 
-	AddQuad(point0, point1, point3, point2);
+	//AddQuad(point0, point1, point3, point2);
+
+	for (int i = 0; i < a_nSubdivisions - 1 ; i++)
+	{
+		AddQuad(bottomPointsOut[0 + i], bottomPointsOut[1 + i], topPointsOut[0 + i], topPointsOut[1 + i]);
+		//AddQuad(bottomPointsIn[0 + i], bottomPointsIn[1 + i], topPointsIn[0 + i], topPointsIn[1 + i]);
+		AddQuad(bottomPointsIn[1 + i], bottomPointsIn[0 + i], topPointsIn[1 + i], topPointsIn[0 + i]);
+		AddQuad(bottomPointsIn[0 + i], bottomPointsOut[0 + i], topPointsIn[0 + i], topPointsOut[0 + i]);
+		AddQuad(bottomPointsIn[0 + i], bottomPointsIn[1 + i], bottomPointsOut[0 + i], bottomPointsOut[1 + i]);
+		AddQuad(topPointsIn[1 + i], topPointsIn[0 + i], topPointsOut[1 + i], topPointsOut[0 + i]);
+		
+		
+	}
 
 	//Your code ends here
 	CompileObject(a_v3Color);

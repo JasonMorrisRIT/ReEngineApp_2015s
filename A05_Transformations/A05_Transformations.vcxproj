@@ -83,6 +83,7 @@
     <ExecutablePath>$(SolutionDir)include\GL\bin;$(SolutionDir)include\RE\bin\2015;$(SolutionDir)include\SFML\bin;$(ExecutablePath)</ExecutablePath>
     <IncludePath>$(SolutionDir)include;$(SolutionDir)res;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)include\GL\lib;$(SolutionDir)include\RE\lib\2015;$(SolutionDir)include\SFML\lib;$(LibraryPath)</LibraryPath>
+    <TargetName>$(ProjectName)D</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

@@ -1,7 +1,7 @@
 #include "AppClass.h"
 void AppClass::InitWindow(String a_sWindowName)
 {
-	super::InitWindow("3D Transformations");
+	super::InitWindow("3D Transformations - jrm2516@rit.edu");
 	m_v4ClearColor = vector4(0.0f, 0.0f, 0.0f, 0.0f);
 }
 
@@ -50,10 +50,20 @@ void AppClass::Update(void)
 
 #pragma region YOUR CODE GOES HERE
 	//Calculate the position of the Earth
-	m_m4Earth = glm::rotate(IDENTITY_M4, m_fEarthTimer, vector3(0.0f, 1.0f, 0.0f));
-
+	
+	//m_m4Earth = glm::rotate(IDENTITY_M4, m_fEarthTimer, vector3(0.0f, 1.0f, 0.0f));
+	//m_m4Earth = glm::rotate(IDENTITY_M4, m_fEarthTimer, vector3(0.0f, 1.0f, 0.0f)) * distanceEarth *  rotateX;
+	m_m4Earth = glm::rotate(IDENTITY_M4, m_fEarthTimer, vector3(0.0f, 1.0f, 0.0f)) * distanceEarth *glm::rotate(IDENTITY_M4, m_fEarthTimer * 360/28, vector3(0.0f, 1.0f, 0.0f))  *  rotateX;
+	
+	
 	//Calculate the position of the Moon
-	m_m4Moon = glm::rotate(IDENTITY_M4, m_fMoonTimer, vector3(0.0f, 1.0f, 0.0f));
+	//m_m4Moon = glm::rotate(IDENTITY_M4, m_fMoonTimer, vector3(0.0f, 1.0f, 0.0f));
+	m_m4Moon = glm::rotate(m_m4Earth, m_fMoonTimer, vector3(0.0f, 0.0f, 1.0f)) * distanceMoon * glm::rotate(IDENTITY_M4,90.0f,vector3(0.0f,1.0f,0.0f));
+
+	//m_m4Earth = glm::rotate(m_m4Earth, 45.0f, vector3(0.0f, 1.0f, 0.0f));
+
+	
+	
 #pragma endregion
 
 #pragma region Print info
