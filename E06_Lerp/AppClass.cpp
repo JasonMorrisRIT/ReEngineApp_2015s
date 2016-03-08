@@ -1,7 +1,7 @@
 #include "AppClass.h"
 void AppClass::InitWindow(String a_sWindowName)
 {
-	super::InitWindow("Sandbox"); // Window Name
+	super::InitWindow("jrm2516 - E06_Lerp"); // Window Name
 
 	// Set the clear color based on Microsoft's CornflowerBlue (default in XNA)
 	//if this line is in Init Application it will depend on the .cfg file, if it
@@ -15,30 +15,28 @@ void AppClass::InitVariables(void)
 	//Set the camera at a position other than the default
 	m_pCameraMngr->SetPositionTargetAndView(vector3(0.0f, 2.5f, 12.0f), vector3(0.0f, 2.5f, 11.0f), REAXISY);
 
-	//m_pLightMngr->SetColor(REWHITE, 0);
-	//m_pLightMngr->SetIntensity(0.1f, 0);
-	//m_pLightMngr->SetColor(REWHITE, 1);
-	//m_pLightMngr->SetIntensity(0.5f, 1);
-//	m_pLightMngr->SetPosition(vector3(0.0f, 1.0f,-1.0f), 1);
+	srand(time(NULL));
+	m_nObjects = rand() % 23 + 5;
+	//m_nObjects = 10;
+	m_pSphere = new PrimitiveClass[m_nObjects];
+	m_pMatrix = new matrix4[m_nObjects];
 
-	//Load a model onto the Mesh manager
-	//m_pMeshMngr->LoadModel("tests\\Cubev.fbx", "Unikitty");
-	//int nCubes = 10;
-	//vector3 v3Start(-nCubes/2.0f, 0.0f, -nCubes / 2.0f);
-	m_pMeshMngr->LoadModel("Minecraft\\Steve.obj", "Steve");
-//	m_pMeshMngr->LoadModel("Minecraft\\Creeper.obj", "Creep");
+	vector3 v3Start(- static_cast<float>(m_nObjects),0.0f,0.0f);
+	vector3 v3End(static_cast<float>(m_nObjects),0.0f,0.0f);
+	
 
-	//m_pMeshMngr->SetShaderProgramByName("ElCubo", "Phong");
-	//for (uint n = 0; n < nCubes; n++)
-	//{
-	//	if (v3Start != vector3(0.0f))
-	//	{
-		//	String sName = "Cube_" + std::to_string(n);
-		//	m_pMeshMngr->LoadModel("Cube.obj", sName, false, glm::translate(v3Start));
-		//	m_pMeshMngr->SetShaderProgramByName(sName, "Phong");
-		//}
-		//v3Start += vector3(1.0f, 0.0f, 1.0f);
-	//}
+	for (int i = 0; i < m_nObjects; i++) 
+	{
+		float fPercent = MapValue(static_cast<float>(i), 0.0f, static_cast<float>(m_nObjects) - 1, 0.0f, 1.0f);
+		
+		m_pSphere[i].GenerateSphere(0.5f, 5, RERED); // rered is just a predefined vec3(1.0f,0.0f,0.0f)
+		vector3 v3Current = glm::lerp(v3Start, v3End, fPercent);
+		m_pMatrix[i] = glm::translate(v3Current);
+	}
+	
+
+	
+	
 }
 
 void AppClass::Update(void)
@@ -55,30 +53,7 @@ void AppClass::Update(void)
 
 	//Call the arcball method
 	ArcBall();
-
-	//matrix4 m4Temp = IDENTITY_M4 * glm::translate(vector3(4.0f,2.0f,1.0f));
-
-	////m4Temp = m4Temp * glm::translate(vector3(-4.0f, -2.0f, -1.0f));
-	//matrix3 m3Temp = matrix3(m4Temp);
-	//m3Temp = glm::transpose(m3Temp);
-	//
-	//m4Temp = m4Temp * matrix4(m3Temp);
-
-	//m4Temp[3] = m4Temp[3] + (m4Temp[3] * -1);
-	//m4Temp[3][3] = 1;
-	////m4Temp = m4Temp * glm::inverse(m4Temp);
-
-	vector3 v3Start = vector3((-5.0f, 0.0f, 0.0f));
-	vector3 v3End = vector3((5.0f, 0.0f, 0.0f));
-	static float percent = 0.0f;
-
-	vector3 v3Interpolation = glm::lerp(v3Start, v3End, percent);
-
-	percent += 0.1f;
-	matrix4 m4Temp =  glm::translate(v3Interpolation);
-
-	m_pMeshMngr->SetModelMatrix(m4Temp, "Steve");
-
+	m_pMeshMngr->SetModelMatrix(glm::translate(m_v3Position) * ToMatrix4(m_qArcBall), 0);
 	
 	//Adds all loaded instance to the render list
 	m_pMeshMngr->AddInstanceToRenderList("ALL");
@@ -119,6 +94,15 @@ void AppClass::Display(void)
 		break;
 	}
 	
+	matrix4 mProjection = m_pCameraMngr->GetProjectionMatrix();
+	matrix4 mView = m_pCameraMngr->GetViewMatrix();
+
+	for (int i = 0; i < m_nObjects; i++)
+	{
+		m_pSphere[i].Render(mProjection, mView, m_pMatrix[i]); //or IDENTIDY4 matrix or m_pMatrix(0)
+	}
+	
+
 	m_pMeshMngr->Render(); //renders the render list
 
 	m_pGLSystem->GLSwapBuffers(); //Swaps the OpenGL buffers
@@ -126,5 +110,16 @@ void AppClass::Display(void)
 
 void AppClass::Release(void)
 {
+	if (m_pSphere != nullptr)
+	{
+		delete[] m_pSphere; // new[] delete[], for new elements 
+		m_pSphere = nullptr;
+	}
+
+	if (m_pMatrix != nullptr)
+	{
+		delete[] m_pMatrix; // new[] delete[], for new elements 
+		m_pMatrix = nullptr;
+	}
 	super::Release(); //release the memory of the inherited fields
 }
