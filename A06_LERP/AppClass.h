@@ -13,6 +13,10 @@ using namespace ReEng; //Using ReEng namespace to use all the classes in the dll
 class AppClass : public ReEngAppClass
 {
 	float fDuration = 1.0f; //Time Duration of the stops
+	float durationSub = 0.0f; // time that will always be less than duration
+	std::vector<vector3> points; // our vector list of vector3 positions
+	matrix4* m4Points = nullptr; // array that will hold the matricies for the spheres' locations
+	PrimitiveClass* spheres = nullptr; // array to hold sphere objects.
 public:
 	typedef ReEngAppClass super;
 	/*

@@ -1,7 +1,7 @@
 #include "AppClass.h"
 void AppClass::InitWindow(String a_sWindowName)
 {
-	super::InitWindow("Assignment  06 - LERP"); // Window Name
+	super::InitWindow("jrm2516 - Assignment  06 - LERP"); // Window Name
 }
 
 void AppClass::InitVariables(void)
@@ -14,6 +14,32 @@ void AppClass::InitVariables(void)
 	m_pMeshMngr->LoadModel("Sorted\\WallEye.bto", "WallEye");
 
 	fDuration = 1.0f;
+
+	//populate the points vector with all our points that our wall eye will move to
+	points.push_back(vector3(-4.0f, -2.0f, 5.0f));
+	points.push_back(vector3(1.0f, -2.0f, 5.0f));
+	points.push_back(vector3(-3.0f, -1.0f, 3.0f));
+	points.push_back(vector3(2.0f, -1.0f, 3.0f));
+	points.push_back(vector3(-2.0f, 0.0f, 0.0f));
+	points.push_back(vector3(3.0f, 0.0f, 0.0f));
+	points.push_back(vector3(-1.0f, 1.0f, -3.0f));
+	points.push_back(vector3(4.0f, 1.0f, -3.0f));
+	points.push_back(vector3(0.0f, 2.0f, -5.0f));
+	points.push_back(vector3(5.0f, 2.0f, -5.0f));
+	points.push_back(vector3(1.0f, 3.0f, -5.0f));
+
+	//spheres array to hold all our sphere objects and a m4Points array to hold all our sphere location matricies.
+	spheres = new PrimitiveClass[points.size()];
+	m4Points = new matrix4[points.size()];
+
+	//populate spheres array with sphere objects then fills the m4Points with matricies that represent the points[]
+	for (int i = 0; i < points.size(); i++)
+	{
+		spheres[i].GenerateSphere(0.1f, 5, RERED);
+		m4Points[i] = glm::translate(points[i]);
+		
+	}
+
 }
 
 void AppClass::Update(void)
@@ -36,7 +62,41 @@ void AppClass::Update(void)
 #pragma endregion
 
 #pragma region Your Code goes here
-	m_pMeshMngr->SetModelMatrix(IDENTITY_M4, "WallEye");
+
+	//will add dT between updates to duartionSub till it is greater than our lerp duration time, then set it to zero to reset it.
+	durationSub += fTimeSpan;
+	if (durationSub > fDuration)
+	{
+		durationSub--;
+	}
+	//our model starting matrix (doesn't really mater what it is)
+	matrix4 modelLocation = IDENTITY_M4;
+
+	//percent is number of duration in total run time
+	float percent = (float)fRunTime / fDuration;
+	//use this total to get the pointStep, which is how we will decide which points to move to
+	int pointSteps = (int)glm::floor(percent) % points.size();
+
+	//now our lerp distance using durationSub and fDuration and casting them to a scale of 0 -> 1
+	float lerpAmount = MapValue(durationSub, 0.0f, fDuration, 0.0f, 1.0f);
+
+	//special cast when moving from last point to first point
+	if(pointSteps == points.size()-1)
+	{ 
+		vector3 lerp = glm::lerp(points[pointSteps], points[0], lerpAmount);
+		modelLocation = glm::translate(lerp);
+	}
+	else // else all other points will go from current pointStep to next step in the array.
+	{
+
+		vector3 lerp = glm::lerp(points[pointSteps], points[pointSteps + 1], lerpAmount );
+		modelLocation = glm::translate(lerp);
+	}
+
+
+
+	//now pass in our altered matrix from the LERP functions.
+	m_pMeshMngr->SetModelMatrix(modelLocation, "WallEye");
 #pragma endregion
 
 #pragma region Does not need changes but feel free to change anything here
@@ -74,6 +134,16 @@ void AppClass::Display(void)
 		m_pMeshMngr->AddGridToQueue(1.0f, REAXIS::XY, REBLUE * 0.75f); //renders the XY grid with a 100% scale
 		break;
 	}
+
+	//same code from E06 to draw all the spheres in the array based of position in spheres array
+	matrix4 mProject = m_pCameraMngr->GetProjectionMatrix();
+	matrix4 mView = m_pCameraMngr->GetViewMatrix();
+
+	for (int i = 0; i < points.size(); i++)
+	{
+		//draw spheres where m4Points(the matrix equivlent of points[])
+		spheres[i].Render(mProject, mView, m4Points[i]);
+	}
 	
 	m_pMeshMngr->Render(); //renders the render list
 
@@ -82,5 +152,20 @@ void AppClass::Display(void)
 
 void AppClass::Release(void)
 {
+
+	if (spheres != nullptr)
+	{
+		delete[] spheres; // release sphere array from memory
+		spheres = nullptr;
+	}
+
+	if (m4Points != nullptr)
+	{
+		delete[] m4Points; // now for points
+		m4Points = nullptr;
+	}
+
+	//the vector list should just fall out of scope, no need to release it
+
 	super::Release(); //release the memory of the inherited fields
 }
