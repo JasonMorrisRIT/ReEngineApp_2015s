@@ -11,6 +11,7 @@ void AppClass::InitWindow(String a_sWindowName)
 
 void AppClass::InitVariables(void)
 {
+<<<<<<< HEAD
 	//m_selection = std::pair<int, int>(-1, -1);
 	//Set the camera at a position other than the default
 	m_pCameraMngr->SetPositionTargetAndView(vector3(0.0f, 2.5f, 12.0f), vector3(0.0f, 2.5f, 11.0f), REAXISY);
@@ -39,6 +40,17 @@ void AppClass::InitVariables(void)
 		//}
 		//v3Start += vector3(1.0f, 0.0f, 1.0f);
 	//}
+=======
+	//Reset the selection to -1, -1
+	m_selection = std::pair<int, int>(-1, -1);
+	//Set the camera position
+	m_pCameraMngr->SetPositionTargetAndView(
+		vector3(0.0f, 2.5f, 15.0f),//Camera position
+		vector3(0.0f, 2.5f, 0.0f),//What Im looking at
+		REAXISY);//What is up
+	//Load a model onto the Mesh manager
+	m_pMeshMngr->LoadModel("Lego\\Unikitty.bto", "Unikitty");
+>>>>>>> 00eb2ab2dfb674c6ae171360e8b5714a2552d94c
 }
 
 void AppClass::Update(void)
@@ -55,6 +67,7 @@ void AppClass::Update(void)
 
 	//Call the arcball method
 	ArcBall();
+<<<<<<< HEAD
 
 	//matrix4 m4Temp = IDENTITY_M4 * glm::translate(vector3(4.0f,2.0f,1.0f));
 
@@ -79,6 +92,11 @@ void AppClass::Update(void)
 
 	m_pMeshMngr->SetModelMatrix(m4Temp, "Steve");
 
+=======
+	
+	//Set the model matrix for the first model to be the arcball
+	m_pMeshMngr->SetModelMatrix(ToMatrix4(m_qArcBall), 0);
+>>>>>>> 00eb2ab2dfb674c6ae171360e8b5714a2552d94c
 	
 	//Adds all loaded instance to the render list
 	m_pMeshMngr->AddInstanceToRenderList("ALL");
